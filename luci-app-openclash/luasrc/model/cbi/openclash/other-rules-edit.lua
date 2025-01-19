@@ -25,7 +25,7 @@ end
 
 m = Map(openclash, translate("Other Rules Edit"))
 m.pageaction = false
-m.redirect = luci.dispatcher.build_url("admin/services/openclash/settings")
+m.redirect = luci.dispatcher.build_url("admin/services/openclash/config-overwrite")
 if m.uci:get(openclash, sid) ~= "other_rules" then
 	luci.http.redirect(m.redirect)
 	return
@@ -72,12 +72,9 @@ if groupnames ~= nil and filename ~= nil then
 o = s:option(ListValue, "rule_name", translate("Other Rules Name"))
 o.rmempty = true
 o:value("lhie1", translate("lhie1 Rules"))
-o:value("ConnersHua", translate("ConnersHua(Provider-type) Rules"))
-o:value("ConnersHua_return", translate("ConnersHua Return Rules"))
 
 o = s:option(ListValue, "GlobalTV", translate("GlobalTV"))
 o:depends("rule_name", "lhie1")
-o:depends("rule_name", "ConnersHua")
 o.rmempty = true
 for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
   if groupname ~= nil and groupname ~= "" then
@@ -89,7 +86,17 @@ o:value("REJECT")
 
 o = s:option(ListValue, "AsianTV", translate("AsianTV"))
 o:depends("rule_name", "lhie1")
-o:depends("rule_name", "ConnersHua")
+o.rmempty = true
+for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
+  if groupname ~= nil and groupname ~= "" then
+    o:value(groupname)
+  end
+end
+o:value("DIRECT")
+o:value("REJECT")
+
+o = s:option(ListValue, "MainlandTV", translate("CN Mainland TV"))
+o:depends("rule_name", "lhie1")
 o.rmempty = true
 for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
   if groupname ~= nil and groupname ~= "" then
@@ -101,8 +108,6 @@ o:value("REJECT")
 
 o = s:option(ListValue, "Proxy", translate("Proxy"))
 o:depends("rule_name", "lhie1")
-o:depends("rule_name", "ConnersHua")
-o:depends("rule_name", "ConnersHua_return")
 o.rmempty = true
 for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
   if groupname ~= nil and groupname ~= "" then
@@ -156,17 +161,6 @@ end
 o:value("DIRECT")
 o:value("REJECT")
 
-o = s:option(ListValue, "HBOGo", translate("HBO Go"))
-o:depends("rule_name", "lhie1")
-o.rmempty = true
-for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
-  if groupname ~= nil and groupname ~= "" then
-    o:value(groupname)
-  end
-end
-o:value("DIRECT")
-o:value("REJECT")
-
 o = s:option(ListValue, "Pornhub", translate("Pornhub"))
 o:depends("rule_name", "lhie1")
 o.rmempty = true
@@ -179,6 +173,17 @@ o:value("DIRECT")
 o:value("REJECT")
 
 o = s:option(ListValue, "Apple", translate("Apple"))
+o:depends("rule_name", "lhie1")
+o.rmempty = true
+for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
+  if groupname ~= nil and groupname ~= "" then
+    o:value(groupname)
+  end
+end
+o:value("DIRECT")
+o:value("REJECT")
+
+o = s:option(ListValue, "AppleTV", translate("Apple TV"))
 o:depends("rule_name", "lhie1")
 o.rmempty = true
 for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
@@ -212,6 +217,17 @@ o:value("DIRECT")
 o:value("REJECT")
 
 o = s:option(ListValue, "Microsoft", translate("Microsoft"))
+o:depends("rule_name", "lhie1")
+o.rmempty = true
+for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
+  if groupname ~= nil and groupname ~= "" then
+    o:value(groupname)
+  end
+end
+o:value("DIRECT")
+o:value("REJECT")
+
+o = s:option(ListValue, "AI_Suite", translate("AI Suite"))
 o:depends("rule_name", "lhie1")
 o.rmempty = true
 for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
@@ -288,6 +304,17 @@ end
 o:value("DIRECT")
 o:value("REJECT")
 
+o = s:option(ListValue, "miHoYo", translate("miHoYo"))
+o:depends("rule_name", "lhie1")
+o.rmempty = true
+for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
+  if groupname ~= nil and groupname ~= "" then
+    o:value(groupname)
+  end
+end
+o:value("DIRECT")
+o:value("REJECT")
+
 o = s:option(ListValue, "Speedtest", translate("Speedtest"))
 o:depends("rule_name", "lhie1")
 o.rmempty = true
@@ -354,9 +381,19 @@ end
 o:value("DIRECT")
 o:value("REJECT")
 
+o = s:option(ListValue, "HTTPDNS", translate("HTTPDNS"))
+o:depends("rule_name", "lhie1")
+o.rmempty = true
+for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
+  if groupname ~= nil and groupname ~= "" then
+    o:value(groupname)
+  end
+end
+o:value("DIRECT")
+o:value("REJECT")
+
 o = s:option(ListValue, "Domestic", translate("Domestic"))
 o:depends("rule_name", "lhie1")
-o:depends("rule_name", "ConnersHua")
 o.rmempty = true
 for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
   if groupname ~= nil and groupname ~= "" then
@@ -368,8 +405,6 @@ o:value("REJECT")
 
 o = s:option(ListValue, "Others", translate("Others"))
 o:depends("rule_name", "lhie1")
-o:depends("rule_name", "ConnersHua")
-o:depends("rule_name", "ConnersHua_return")
 o.rmempty = true
 o.description = translate("Choose Proxy Groups, Base On Your Config File").." ( "..font_green..bold_on..filename..bold_off..font_off.." )"
 for groupname in string.gmatch(groupnames, "([^'##\n']+)##") do
@@ -383,7 +418,7 @@ o:value("REJECT")
 end
 
 local t = {
-    {Commit, Back}
+  {Commit, Back}
 }
 a = m:section(Table, t)
 
@@ -391,16 +426,16 @@ o = a:option(Button,"Commit", " ")
 o.inputtitle = translate("Commit Settings")
 o.inputstyle = "apply"
 o.write = function()
-   m.uci:commit(openclash)
-   --luci.http.redirect(m.redirect)
+  m.uci:commit(openclash)
+  --luci.http.redirect(m.redirect)
 end
 
 o = a:option(Button,"Back", " ")
 o.inputtitle = translate("Back Settings")
 o.inputstyle = "reset"
 o.write = function()
-   m.uci:revert(openclash, sid)
-   luci.http.redirect(m.redirect)
+  m.uci:revert(openclash, sid)
+  luci.http.redirect(m.redirect)
 end
 
 m:append(Template("openclash/toolbar_show"))

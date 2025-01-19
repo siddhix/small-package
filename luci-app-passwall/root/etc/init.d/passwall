@@ -32,8 +32,18 @@ unlock() {
 	done
 }
 
+boot_func() {
+	local delay=$(uci -q get ${CONFIG}.@global_delay[0].start_delay || echo 1)
+	if [ "$delay" -gt 0 ]; then
+		$APP_FILE echolog "执行启动延时 $delay 秒后再启动!"
+		sleep $delay
+	fi
+	restart
+	touch ${LOCK_FILE_DIR}/${CONFIG}_ready.lock
+}
+
 boot() {
-	$APP_FILE boot
+	boot_func >/dev/null 2>&1 &
 }
 
 start() {
@@ -57,24 +67,4 @@ restart() {
 	$APP_FILE stop
 	$APP_FILE start
 	unset_lock
-}
-
-disable() {
-	rm -f "$IPKG_INSTROOT"/etc/rc.d/S??zzz_${CONFIG}
-	rm -f "$IPKG_INSTROOT"/etc/rc.d/K??zzz_${CONFIG}
-}
-
-enable() {
-	err=1
-	[ "$START" ] && \
-		ln -sf "../init.d/${CONFIG}" "$IPKG_INSTROOT/etc/rc.d/S${START}zzz_${CONFIG}" && \
-		err=0
-	[ "$STOP" ] && \
-		ln -sf "../init.d/${CONFIG}" "$IPKG_INSTROOT/etc/rc.d/K${STOP}zzz_${CONFIG}" && \
-		err=0
-	return $err
-}
-
-enabled() {
-	[ -x "$IPKG_INSTROOT/etc/rc.d/S${START}zzz_${CONFIG}" ]
 }
